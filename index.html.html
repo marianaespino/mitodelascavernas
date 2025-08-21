@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Viaje del Conocimiento | Una Aventura con Platón</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .interactive-element {
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .interactive-element:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .tooltip {
+            transition: opacity 0.3s ease-in-out;
+        }
+    </style>
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: The application is designed as a narrative journey, starting with a relatable problem (Laura's story), moving to the core metaphor (the interactive cave), explaining the process of learning as a visual journey, showing the results with a dynamic chart (knowledge and freedom), and ending with a call to action. This thematic, scroll-based flow is more engaging for a young audience than a static report structure, encouraging exploration and discovery step-by-step. -->
+    <!-- Visualization & Content Choices: 
+        - Laura's Story -> Goal: Engage -> Method: Introductory text -> Interaction: None, serves as a narrative hook.
+        - Allegory of the Cave -> Goal: Organize/Inform -> Method: Interactive diagram with HTML/CSS -> Interaction: On-click pop-up explanations for key elements (cave, shadows, prisoner). Justification: Makes the abstract concept tangible and explorable.
+        - Journey of Knowledge -> Goal: Explain Process -> Method: Vertical timeline/path -> Interaction: Clicking stages reveals descriptive text. Justification: Visualizes learning as a progressive path.
+        - Knowledge & Freedom -> Goal: Compare/Relate -> Method: Bar chart (Chart.js) -> Interaction: Buttons update chart data to show the state 'inside' vs. 'outside' the cave. Justification: Quantifies an abstract relationship, making the benefit of knowledge clear and impactful.
+        - Call to Action -> Goal: Engage/Reflect -> Method: Interactive cards -> Interaction: Click to reveal a final thought. Justification: Encourages personal reflection.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-[#FDF6E3] text-[#586E75]">
+
+    <header class="bg-[#FDF6E3]/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="#" class="font-bold text-xl text-[#CB4B16]">El Viaje de Platón</a>
+            <div class="hidden md:flex space-x-6">
+                <a href="#laura" class="hover:text-[#CB4B16] transition-colors">El Dilema</a>
+                <a href="#caverna" class="hover:text-[#CB4B16] transition-colors">La Caverna</a>
+                <a href="#viaje" class="hover:text-[#CB4B16] transition-colors">El Viaje</a>
+                <a href="#libertad" class="hover:text-[#CB4B16] transition-colors">La Libertad</a>
+                <a href="#accion" class="hover:text-[#CB4B16] transition-colors">Tu Turno</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+
+        <section id="laura" class="text-center min-h-screen flex flex-col justify-center items-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-[#268BD2] mb-4">¿Alguna vez te has sentido como si solo memorizaras?</h1>
+            <p class="text-lg md:text-xl max-w-3xl mx-auto mb-8">
+                Conoce a Laura, una estudiante como tú, que sentía que aprender era solo repetir información para un examen. Pero un día se preguntó: ¿qué significa aprender de verdad? Su pregunta es el inicio de nuestro viaje.
+            </p>
+            <a href="#caverna" class="bg-[#2AA198] text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-[#208078] transition-colors">Inicia la Aventura ↓</a>
+        </section>
+
+        <section id="caverna" class="py-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#CB4B16]">El Mito de la Caverna</h2>
+                <p class="mt-4 max-w-2xl mx-auto">Platón usó una historia para explicar cómo vemos la realidad. Haz clic en los elementos para descubrir qué representa cada uno en este famoso mito.</p>
+            </div>
+            <div class="relative w-full max-w-4xl mx-auto aspect-video bg-[#EEE8D5] rounded-lg p-4 shadow-lg">
+                <div id="info-box" class="absolute top-4 left-4 bg-white/80 p-4 rounded-lg shadow-md max-w-xs opacity-0 tooltip">
+                    <h3 id="info-title" class="font-bold text-[#CB4B16]"></h3>
+                    <p id="info-text"></p>
+                </div>
+
+                <div id="el-prisionero" data-title="El Prisionero" data-text="Somos nosotros cuando aceptamos todo sin preguntar. Estamos 'atados' a las opiniones de los demás." class="absolute bottom-1/4 left-1/4 w-10 h-16 bg-[#6C71C4] rounded-t-full rounded-b-lg interactive-element"></div>
+                <div id="las-sombras" data-title="Las Sombras" data-text="Representan las 'verdades' a medias o las apariencias. Lo que creemos que es real antes de empezar a pensar por nosotros mismos." class="absolute bottom-1/4 right-1/4 h-20 w-24 bg-gray-500 opacity-50 rounded-full blur-sm interactive-element"></div>
+                <div id="la-cueva" data-title="La Caverna" data-text="Es nuestra zona de confort, el mundo de la ignorancia o las ideas que no hemos cuestionado. Creemos que es todo lo que existe." class="absolute inset-0 border-8 border-[#657B83] rounded-lg interactive-element pointer-events-none"></div>
+                <div id="la-salida" data-title="La Salida" data-text="Simboliza el difícil camino de la educación. Es el proceso de atreverse a dudar, a buscar y a enfrentarse a nuevas ideas que pueden ser incómodas al principio." class="absolute top-0 right-1/3 w-24 h-24 bg-gradient-to-b from-yellow-300 to-transparent rounded-full interactive-element"></div>
+            </div>
+        </section>
+
+        <section id="viaje" class="py-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#859900]">Tu Viaje del Conocimiento</h2>
+                <p class="mt-4 max-w-2xl mx-auto">Salir de la caverna es un proceso. Cada paso te acerca más a la luz del entendimiento. Toca cada etapa para ver qué significa en tu vida como estudiante.</p>
+            </div>
+            <div class="relative max-w-md mx-auto">
+                <div class="absolute left-1/2 w-1 h-full bg-[#93A1A1] -translate-x-1/2"></div>
+                <div class="space-y-12">
+                    <div class="journey-step text-center interactive-element" data-text="Aquí es donde solo memorizas datos. Repites lo que lees o escuchas, pero no lo conectas con tu vida. Crees que las sombras son la única realidad.">
+                        <div class="bg-[#FDF6E3] border-2 border-[#93A1A1] rounded-full w-24 h-24 flex items-center justify-center mx-auto shadow-md">
+                            <span class="text-4xl">👁️</span>
+                        </div>
+                        <h3 class="mt-4 font-bold">1. Ver Sombras</h3>
+                    </div>
+                    <div class="journey-step text-center interactive-element" data-text="¡El momento clave! Empiezas a hacerte preguntas como Laura. '¿Por qué es esto así?', '¿Hay otra forma de verlo?'. La duda es el primer paso para liberarse.">
+                        <div class="bg-[#FDF6E3] border-2 border-[#93A1A1] rounded-full w-24 h-24 flex items-center justify-center mx-auto shadow-md">
+                            <span class="text-4xl">❓</span>
+                        </div>
+                        <h3 class="mt-4 font-bold">2. Cuestionar las Cadenas</h3>
+                    </div>
+                    <div class="journey-step text-center interactive-element" data-text="Decides buscar tus propias respuestas. Lees más, investigas, debates con otros. Es un camino difícil, como salir de la cueva y que la luz del sol te ciegue al principio.">
+                        <div class="bg-[#FDF6E3] border-2 border-[#93A1A1] rounded-full w-24 h-24 flex items-center justify-center mx-auto shadow-md">
+                            <span class="text-4xl">🚶‍♀️</span>
+                        </div>
+                        <h3 class="mt-4 font-bold">3. Iniciar el Ascenso</h3>
+                    </div>
+                    <div class="journey-step text-center interactive-element" data-text="Finalmente, las ideas empiezan a conectar. Entiendes el 'porqué' de las cosas. El conocimiento se vuelve tuyo y puedes aplicarlo. Has llegado a la luz del entendimiento.">
+                        <div class="bg-[#FDF6E3] border-2 border-[#93A1A1] rounded-full w-24 h-24 flex items-center justify-center mx-auto shadow-md">
+                            <span class="text-4xl">☀️</span>
+                        </div>
+                        <h3 class="mt-4 font-bold">4. Contemplar el Sol</h3>
+                    </div>
+                </div>
+                <div id="journey-info" class="mt-8 text-center bg-[#EEE8D5] p-4 rounded-lg shadow-inner min-h-[100px] flex items-center justify-center">
+                    <p>Toca una etapa para leer su descripción aquí.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="libertad" class="py-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#268BD2]">Conocimiento es Libertad</h2>
+                <p class="mt-4 max-w-2xl mx-auto">Platón creía que el verdadero conocimiento nos hace libres. Libres de la ignorancia y de las opiniones de otros. Mira cómo cambia todo cuando sales de la caverna.</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="freedomChart"></canvas>
+            </div>
+            <div class="flex justify-center mt-8 space-x-4">
+                <button id="insideCaveBtn" class="bg-[#DC322F] text-white px-6 py-2 rounded-full font-bold hover:bg-[#c9302c] transition-colors">Dentro de la Caverna</button>
+                <button id="outsideCaveBtn" class="bg-[#859900] text-white px-6 py-2 rounded-full font-bold hover:bg-[#728200] transition-colors">Fuera de la Caverna</button>
+            </div>
+        </section>
+        
+        <section id="accion" class="py-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#D33682]">Ahora es tu turno</h2>
+                <p class="mt-4 max-w-2xl mx-auto">La filosofía no es solo para los libros, ¡es para la vida! Haz clic en estas preguntas para una reflexión final.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="action-card bg-white p-6 rounded-lg shadow-lg text-center interactive-element" data-reflection="Significa encender tu propia curiosidad, no solo acumular datos. Es hacer tuyo el conocimiento.">
+                    <h3 class="font-bold text-lg text-[#CB4B16]">¿Qué es aprender realmente?</h3>
+                </div>
+                <div class="action-card bg-white p-6 rounded-lg shadow-lg text-center interactive-element" data-reflection="Porque te da el poder de decidir por ti misma, de no ser engañada y de construir tu propio camino basado en la verdad.">
+                    <h3 class="font-bold text-lg text-[#CB4B16]">¿Por qué el conocimiento te hace libre?</h3>
+                </div>
+                <div class="action-card bg-white p-6 rounded-lg shadow-lg text-center interactive-element" data-reflection="Empieza hoy. La próxima vez que aprendas algo, pregúntate: ¿Qué significa esto para mí? ¿Cómo se conecta con lo que ya sé? ¡Ese es el primer paso fuera de la cueva!">
+                    <h3 class="font-bold text-lg text-[#CB4B16]">¿Cómo puedo empezar mi viaje?</h3>
+                </div>
+            </div>
+             <div id="reflection-box" class="mt-8 text-center bg-[#EEE8D5] p-6 rounded-lg shadow-inner min-h-[100px] flex items-center justify-center text-lg italic">
+                <p>Haz clic en una pregunta para ver una idea final...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-[#EEE8D5] py-6 text-center">
+        <p>Una exploración interactiva inspirada en las ideas de Platón.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const caveElements = document.querySelectorAll('#caverna .interactive-element');
+            const infoBox = document.getElementById('info-box');
+            const infoTitle = document.getElementById('info-title');
+            const infoText = document.getElementById('info-text');
+
+            caveElements.forEach(elem => {
+                elem.addEventListener('click', () => {
+                    infoTitle.textContent = elem.dataset.title;
+                    infoText.textContent = elem.dataset.text;
+                    infoBox.classList.remove('opacity-0');
+                });
+            });
+
+            const journeySteps = document.querySelectorAll('.journey-step');
+            const journeyInfo = document.getElementById('journey-info');
+            journeySteps.forEach(step => {
+                step.addEventListener('click', () => {
+                    journeyInfo.innerHTML = `<p>${step.dataset.text}</p>`;
+                    journeySteps.forEach(s => s.style.transform = 'scale(1)');
+                    step.style.transform = 'scale(1.1)';
+                });
+            });
+
+            const actionCards = document.querySelectorAll('.action-card');
+            const reflectionBox = document.getElementById('reflection-box');
+            actionCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    reflectionBox.innerHTML = `<p>"${card.dataset.reflection}"</p>`;
+                });
+            });
+
+            const ctx = document.getElementById('freedomChart').getContext('2d');
+            const freedomChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Conocimiento Propio', 'Libertad de Pensamiento'],
+                    datasets: [{
+                        label: 'Nivel',
+                        data: [2, 3],
+                        backgroundColor: [
+                            'rgba(220, 50, 47, 0.5)',
+                            'rgba(108, 113, 196, 0.5)',
+                        ],
+                        borderColor: [
+                            'rgba(220, 50, 47, 1)',
+                            'rgba(108, 113, 196, 1)',
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Tu estado de desarrollo'
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('insideCaveBtn').addEventListener('click', () => {
+                freedomChart.data.datasets[0].data = [2, 3];
+                freedomChart.options.plugins.title.text = 'Estado: Atrapada en las Sombras';
+                freedomChart.update();
+            });
+
+            document.getElementById('outsideCaveBtn').addEventListener('click', () => {
+                freedomChart.data.datasets[0].data = [9, 8];
+                freedomChart.options.plugins.title.text = 'Estado: Viendo la Luz del Sol';
+                freedomChart.update();
+            });
+        });
+    </script>
+
+</body>
+</html>
